@@ -3,39 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Projects</title>
     <style>
         body {
             background-color: #007bff;
             color: white;
             font-family: Arial, sans-serif;
         }
-        .projects {
-            max-width: 600px;
+        form {
+            max-width: 400px;
             margin: auto;
             padding: 20px;
             background: white;
             color: black;
             border-radius: 5px;
         }
-        .project {
+        input, textarea, button {
+            width: 100%;
             margin: 10px 0;
             padding: 10px;
-            border: 1px solid #ccc;
             border-radius: 5px;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome, {{ role.capitalize() }}</h1>
-    <div class="projects">
-        {% for project in projects %}
-        <div class="project">
-            <h3>{{ project.title }}</h3>
-            <p>{{ project.description }}</p>
-        </div>
-        {% endfor %}
-    </div>
+    <h1>Create a New Project</h1>
+    <form method="POST">
+        <input type="text" name="title" placeholder="Project Title" required>
+        <textarea name="description" placeholder="Project Description" required></textarea>
+        <button type="submit">Create Project</button>
+    </form>
 </body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">

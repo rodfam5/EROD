@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Sales & Client Management - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Sales & Client Management</h1>
+    <p class="text-center">Manage quotes, cost catalogs, templates, and client dashboards.</p>
+    
+    <!-- Quick Stats -->
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Total Quotes</h3>
+                <p class="fs-4" id="totalQuotes">{{ total_quotes }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Active Clients</h3>
+                <p class="fs-4" id="activeClients">{{ active_clients }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Pending Approvals</h3>
+                <p class="fs-4" id="pendingApprovals">{{ pending_approvals }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <!-- Quote Management Table -->
+    <h2>Quotes</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>Quote Name</th>
+                <th>Total Cost</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quote in quotes %}
+            <tr>
+                <td>{{ quote.client_name }}</td>
+                <td>{{ quote.name }}</td>
+                <td>${{ quote.total_cost }}</td>
+                <td>{{ quote.status }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No quotes available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <!-- Cost Catalog & Templates -->
+    <h2>Cost Catalog & Templates</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="quoteStatusChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="clientActivityChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js for interactive charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var quoteStatusData = JSON.parse('{{ quote_status_data | tojson | safe }}');
+        var clientActivityData = JSON.parse('{{ client_activity_data | tojson | safe }}');
+        
+        var ctxQuoteStatus = document.getElementById('quoteStatusChart').getContext('2d');
+        new Chart(ctxQuoteStatus, {
+            type: 'pie',
+            data: {
+                labels: quoteStatusData.labels,
+                datasets: [{
+                    data: quoteStatusData.values,
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+                }]
+            }
+        });
+        
+        var ctxClientActivity = document.getElementById('clientActivityChart').getContext('2d');
+        new Chart(ctxClientActivity, {
+            type: 'bar',
+            data: {
+                labels: clientActivityData.labels,
+                datasets: [{
+                    label: 'Client Activity',
+                    data: clientActivityData.values,
+                    backgroundColor: ['#3F51B5', '#E91E63', '#00BCD4', '#8BC34A', '#FF9800']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

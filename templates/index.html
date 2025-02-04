@@ -1,12 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body>
-    <h1>Welcome to the Construction Platform</h1>
-    <a href="/login">Login</a> | <a href="/register">Register</a>
-</body>
-</html>
+<!-- index.html -->
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1>Welcome to the CRM System</h1>
+<p>Select a client to view their projects and tasks:</p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Client Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+        <tr>
+            <td>{{ client.id }}</td>
+            <td>{{ client.name }}</td>
+            <td>{{ client.email }}</td>
+            <td>{{ client.phone }}</td>
+            <td>
+                <a href="{{ url_for('client_projects', client_id=client.id) }}" class="btn btn-primary btn-sm">Projects</a>
+                <a href="{{ url_for('client_tasks', client_id=client.id) }}" class="btn btn-secondary btn-sm">Tasks</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

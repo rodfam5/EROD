@@ -1,0 +1,30 @@
+<div class="container mt-5">
+    <h1>Client: {{ client.name }}</h1>
+    <p>Email: {{ client.email }}</p>
+    <p>Phone: {{ client.phone }}</p>
+    <p>Address: {{ client.address }}</p>
+
+    <hr>
+    <h2>Projects</h2>
+    <ul class="list-group">
+        {% for project in projects %}
+            <li class="list-group-item">
+                {{ project.title }} - {{ project.status }}
+            </li>
+        {% else %}
+            <li class="list-group-item">No projects found.</li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+    <h2>Tasks</h2>
+    <ul class="list-group">
+        {% for task in tasks %}
+            <li class="list-group-item">
+                {{ task.title }} - Due: {{ task.due_date.strftime('%Y-%m-%d') }} - {{ task.status }}
+            </li>
+        {% else %}
+            <li class="list-group-item">No tasks assigned.</li>
+        {% endfor %}
+    </ul>
+</div>

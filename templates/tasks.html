@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Tasks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Manage Tasks</h1>
+        <form action="{{ url_for('manage_tasks') }}" method="POST" class="mt-4">
+            <div class="mb-3">
+                <label for="title" class="form-label">Task Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="due_date" class="form-label">Due Date</label>
+                <input type="date" class="form-control" id="due_date" name="due_date" required>
+            </div>
+            <div class="mb-3">
+                <label for="client_id" class="form-label">Assign to Client</label>
+                <select class="form-select" id="client_id" name="client_id" required>
+                    {% for client in clients %}
+                        <option value="{{ client.id }}">{{ client.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Task</button>
+        </form>
+        <hr>
+        <ul class="list-group">
+            {% for task in tasks %}
+                <li class="list-group-item">
+                    {{ task.title }} - {{ task.due_date.strftime('%Y-%m-%d') }} - {{ task.status }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<ul class="list-group">
+    {% for task in tasks %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ task.title }}</strong> - {{ task.due_date.strftime('%Y-%m-%d') }} - {{ task.status }}
+            </div>
+            <form action="{{ url_for('update_task_status', task_id=task.id) }}" method="POST" class="d-flex align-items-center">
+                <select name="status" class="form-select me-2" required>
+                    <option value="Pending" {% if task.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
+
+</html>

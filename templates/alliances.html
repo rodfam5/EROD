@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alliance of Contractors</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Alliance of Contractors</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('projects') }}">Projects</a>
+            <a href="{{ url_for('alliance') }}">Alliance</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Join Our Alliance</h2>
+            <p>Become part of a trusted network of contractors, architects, and engineers. We ensure quality and compliance through rigorous vetting standards and provide unmatched benefits for our members.</p>
+        </section>
+        <section>
+            <h3>Benefits of Joining</h3>
+            <ul>
+                <li>Exclusive training programs to enhance your skills.</li>
+                <li>Bulk material discounts from top suppliers.</li>
+                <li>Access to high-value projects and a larger client base.</li>
+                <li>Support for compliance and regulatory requirements.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>How to Join</h3>
+            <p>Contact us to start your application process. We review all contractors to maintain the highest quality standards.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Your Platform Name. All Rights Reserved.</p>
+    </footer>
+</body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+</html>
