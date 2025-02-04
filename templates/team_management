@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Team Management - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Team Management</h1>
+    <p class="text-center">Collaborate, assign tasks, manage schedules, and track team performance in one place.</p>
+    
+    <!-- Team Overview -->
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Active Employees</h3>
+                <p class="fs-4" id="activeEmployees">{{ active_employees }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Pending Tasks</h3>
+                <p class="fs-4" id="pendingTasks">{{ pending_tasks }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Scheduled Shifts</h3>
+                <p class="fs-4" id="scheduledShifts">{{ scheduled_shifts }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <!-- Scheduling -->
+    <h2>Scheduling</h2>
+    <p>Manage and track your team’s schedule.</p>
+    <button class="btn btn-primary">View Schedule</button>
+    
+    <hr>
+    
+    <!-- Task Management -->
+    <h2>Tasks</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Assigned To</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.name }}</td>
+                <td>{{ task.assigned_to }}</td>
+                <td>{{ task.deadline }}</td>
+                <td>{{ task.status }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No tasks available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <!-- Time Sheets -->
+    <h2>Time Sheets</h2>
+    <button class="btn btn-success">Submit Time Sheet</button>
+    
+    <hr>
+    
+    <!-- Fleet Management -->
+    <h2>Fleet Management</h2>
+    <p>Track and manage vehicles and equipment.</p>
+    <button class="btn btn-primary">View Fleet</button>
+    
+    <hr>
+    
+    <!-- Safety Logs -->
+    <h2>Safety Logs</h2>
+    <p>Maintain records of safety reports and incidents.</p>
+    <button class="btn btn-warning">View Safety Logs</button>
+    
+    <hr>
+    
+    <!-- Daily Logs with Images -->
+    <h2>Daily Logs</h2>
+    <p>Upload and manage daily site logs with images.</p>
+    <button class="btn btn-primary">Upload Logs</button>
+    
+    <hr>
+    
+    <!-- Messaging -->
+    <h2>Messaging</h2>
+    <p>Communicate with your team members in real-time.</p>
+    <button class="btn btn-info">Open Chat</button>
+</div>
+
+<!-- Include Chart.js for potential task and scheduling charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var taskData = JSON.parse('{{ task_data | tojson | safe }}');
+        
+        var ctxTasks = document.getElementById('taskChart').getContext('2d');
+        new Chart(ctxTasks, {
+            type: 'bar',
+            data: {
+                labels: taskData.labels,
+                datasets: [{
+                    label: 'Tasks Status',
+                    data: taskData.values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

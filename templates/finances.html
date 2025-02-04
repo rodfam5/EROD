@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Project Finances - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Project Finances</h1>
+    <p class="text-center">Manage all financial aspects of your projects, including purchase orders, payments, and profitability.</p>
+    
+    <!-- Financial Overview -->
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Total Purchase Orders</h3>
+                <p class="fs-4" id="totalPOs">{{ total_purchase_orders }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Pending Payments</h3>
+                <p class="fs-4" id="pendingPayments">{{ pending_payments }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Profit & Loss</h3>
+                <p class="fs-4" id="profitLoss">${{ profit_loss }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <!-- Purchase Orders Table -->
+    <h2>Purchase Orders</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Project</th>
+                <th>Vendor</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for po in purchase_orders %}
+            <tr>
+                <td>{{ po.project_name }}</td>
+                <td>{{ po.vendor }}</td>
+                <td>${{ po.amount }}</td>
+                <td>{{ po.status }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No purchase orders available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <!-- Payment Processing -->
+    <h2>Payment Processing</h2>
+    <p>Manage transactions and ensure seamless payment processing.</p>
+    <button class="btn btn-success">Process Payments</button>
+    
+    <hr>
+    
+    <!-- Financial Integrations -->
+    <h2>Financial Integrations</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>QuickBooks</h3>
+                <p>Sync financial data with QuickBooks.</p>
+                <button class="btn btn-primary">Integrate</button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Zapier</h3>
+                <p>Automate workflows with Zapier integrations.</p>
+                <button class="btn btn-primary">Integrate</button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Financial Institutions</h3>
+                <p>Connect with banks for project financing.</p>
+                <button class="btn btn-primary">Connect</button>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <!-- Approved Grants Pull-Through -->
+    <h2>Approved Grants</h2>
+    <p>View and manage approved grants for your projects.</p>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Grant Name</th>
+                <th>Amount</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grant in approved_grants %}
+            <tr>
+                <td>{{ grant.name }}</td>
+                <td>${{ grant.amount }}</td>
+                <td>{{ grant.status }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" class="text-center">No grants available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Include Chart.js for interactive financial charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var financeData = JSON.parse('{{ finance_data | tojson | safe }}');
+        
+        var ctxFinance = document.getElementById('profitLossChart').getContext('2d');
+        new Chart(ctxFinance, {
+            type: 'line',
+            data: {
+                labels: financeData.labels,
+                datasets: [{
+                    label: 'Profit & Loss Over Time',
+                    data: financeData.values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}
