@@ -98,6 +98,10 @@ def sales_client_management():
 def tasks():
     return render_template('tasks.html')
 
+@app.route('/contract_management')
+def contract_management():
+    return render_template('contract_management.html')
+
 @app.route('/alliances', methods=['GET', 'POST'])
 def alliances():
     if request.method == 'POST':
