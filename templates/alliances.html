@@ -1,67 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alliance of Contractors</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Alliance of Contractors</h1>
-        <nav>
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('projects') }}">Projects</a>
-            <a href="{{ url_for('alliance') }}">Alliance</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </nav>
-    </header>
-    <main>
-        <section>
-            <h2>Join Our Alliance</h2>
-            <p>Become part of a trusted network of contractors, architects, and engineers. We ensure quality and compliance through rigorous vetting standards and provide unmatched benefits for our members.</p>
-        </section>
-        <section>
-            <h3>Benefits of Joining</h3>
-            <ul>
-                <li>Exclusive training programs to enhance your skills.</li>
-                <li>Bulk material discounts from top suppliers.</li>
-                <li>Access to high-value projects and a larger client base.</li>
-                <li>Support for compliance and regulatory requirements.</li>
-            </ul>
-        </section>
-        <section>
-            <h3>How to Join</h3>
-            <p>Contact us to start your application process. We review all contractors to maintain the highest quality standards.</p>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2024 Your Platform Name. All Rights Reserved.</p>
-    </footer>
-</body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
-                </li>
-            </ul>
+{% extends "base.html" %}
+
+{% block title %}Alliance Members{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Alliance Members</h1>
+    <p class="text-center">Manage and track all members of the contractor alliance.</p>
+    
+    <!-- Add Member Button -->
+    <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+        Add New Member
+    </button>
+    
+    <hr>
+    
+    <!-- Alliance Members Table -->
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Company</th>
+                <th>Specialty</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in alliance_members %}
+            <tr>
+                <td>{{ member.name }}</td>
+                <td>{{ member.company }}</td>
+                <td>{{ member.specialty }}</td>
+                <td>{{ member.location }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Remove</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No alliance members found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <h2>Alliance Overview</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="specialtyChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="locationChart"></canvas>
         </div>
     </div>
-</nav>
+</div>
 
-</html>
+<!-- Add Member Modal -->
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMemberModalLabel">Add New Alliance Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('alliances') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control" id="company" name="company" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="specialty" class="form-label">Specialty</label>
+                        <input type="text" class="form-control" id="specialty" name="specialty" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js for interactive charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var ctxSpecialty = document.getElementById('specialtyChart').getContext('2d');
+        var specialtyChart = new Chart(ctxSpecialty, {
+            type: 'pie',
+            data: {
+                labels: ['Electricians', 'Plumbers', 'Carpenters', 'Masons', 'Roofers'],
+                datasets: [{
+                    data: [{{ electricians_count }}, {{ plumbers_count }}, {{ carpenters_count }}, {{ masons_count }}, {{ roofers_count }}],
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#2196F3', '#9C27B0']
+                }]
+            }
+        });
+        
+        var ctxLocation = document.getElementById('locationChart').getContext('2d');
+        var locationChart = new Chart(ctxLocation, {
+            type: 'bar',
+            data: {
+                labels: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami'],
+                datasets: [{
+                    label: 'Members by Location',
+                    data: [{{ ny_count }}, {{ la_count }}, {{ chicago_count }}, {{ houston_count }}, {{ miami_count }}],
+                    backgroundColor: ['#3F51B5', '#E91E63', '#00BCD4', '#8BC34A', '#FF9800']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

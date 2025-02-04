@@ -1,51 +1,134 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grants</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <header>
-        <h1>Available Grants</h1>
-    </header>
-    <main>
-        <ul>
+{% extends "base.html" %}
+
+{% block title %}Grants & Funding Opportunities{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Grants & Funding Opportunities</h1>
+    <p class="text-center">Find and track grants available for your construction and renovation projects.</p>
+    
+    <!-- Search Bar -->
+    <input type="text" class="form-control search-bar" id="searchGrants" placeholder="Search Grants...">
+    
+    <!-- Add Grant Button -->
+    <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#addGrantModal">
+        Add New Grant
+    </button>
+    
+    <hr>
+    
+    <!-- Grants Table -->
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Grant Name</th>
+                <th>Funding Amount</th>
+                <th>Eligibility</th>
+                <th>Deadline</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
             {% for grant in grants %}
-                <li>
-                    <strong>{{ grant.title }}</strong>
-                    <p>{{ grant.description }}</p>
-                    <p>Eligibility: {{ grant.eligibility }}</p>
-                </li>
+            <tr>
+                <td>{{ grant.name }}</td>
+                <td>${{ grant.amount }}</td>
+                <td>{{ grant.eligibility }}</td>
+                <td>{{ grant.deadline.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No grants found.</td>
+            </tr>
             {% endfor %}
-        </ul>
-        <a href="{{ url_for('index') }}">Back to Home</a>
-    </main>
-</body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
-                </li>
-            </ul>
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <h2>Grant Funding Overview</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="fundingChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="eligibilityChart"></canvas>
         </div>
     </div>
-</nav>
+</div>
 
-</html>
+<!-- Add Grant Modal -->
+<div class="modal fade" id="addGrantModal" tabindex="-1" aria-labelledby="addGrantModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addGrantModalLabel">Add New Grant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('grants') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Grant Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Funding Amount</label>
+                        <input type="number" class="form-control" id="amount" name="amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eligibility" class="form-label">Eligibility</label>
+                        <input type="text" class="form-control" id="eligibility" name="eligibility" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deadline" class="form-label">Application Deadline</label>
+                        <input type="date" class="form-control" id="deadline" name="deadline" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js for interactive charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var fundingData = JSON.parse('{{ funding_data | tojson | safe }}');
+        var eligibilityData = JSON.parse('{{ eligibility_data | tojson | safe }}');
+
+        var ctxFunding = document.getElementById('fundingChart').getContext('2d');
+        new Chart(ctxFunding, {
+            type: 'bar',
+            data: {
+                labels: fundingData.labels,
+                datasets: [{
+                    label: 'Funding Amounts',
+                    data: fundingData.values,
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#2196F3', '#9C27B0']
+                }]
+            }
+        });
+        
+        var ctxEligibility = document.getElementById('eligibilityChart').getContext('2d');
+        new Chart(ctxEligibility, {
+            type: 'pie',
+            data: {
+                labels: eligibilityData.labels,
+                datasets: [{
+                    data: eligibilityData.values,
+                    backgroundColor: ['#3F51B5', '#E91E63', '#00BCD4', '#8BC34A', '#FF9800']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

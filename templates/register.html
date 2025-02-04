@@ -1,68 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <style>
-        body {
-            background-color: #007bff;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        form {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            color: black;
-            border-radius: 5px;
-        }
-        input, select, button {
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-    </style>
-</head>
-<body>
-    <h1>Register</h1>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <select name="role" required>
-            <option value="client">Client</option>
-            <option value="contractor">Contractor</option>
-            <option value="admin">Admin</option>
-        </select>
-        <button type="submit">Register</button>
-    </form>
-</body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
-                </li>
-            </ul>
+{% extends "base.html" %}
+
+{% block title %}Register - CRM{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card p-4" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center">Register</h2>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form action="{{ url_for('register') }}" method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Select Role</label>
+                <select class="form-control" id="role" name="role" required>
+                    <option value="client">Client</option>
+                    <option value="contractor">Contractor</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+        </form>
+        <p class="text-center mt-3">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+</div>
+
+<hr>
+
+<div class="container">
+    <h2>Alliance Member Statistics</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="specialtyChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="locationChart"></canvas>
         </div>
     </div>
-</nav>
+</div>
 
-</html>
+<!-- Include Chart.js for interactive charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var specialtyData = JSON.parse('{{ specialty_data | tojson | safe }}');
+        var locationData = JSON.parse('{{ location_data | tojson | safe }}');
+        
+        var ctxSpecialty = document.getElementById('specialtyChart').getContext('2d');
+        new Chart(ctxSpecialty, {
+            type: 'pie',
+            data: {
+                labels: specialtyData.labels,
+                datasets: [{
+                    data: specialtyData.values,
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#2196F3', '#9C27B0']
+                }]
+            }
+        });
+        
+        var ctxLocation = document.getElementById('locationChart').getContext('2d');
+        new Chart(ctxLocation, {
+            type: 'bar',
+            data: {
+                labels: locationData.labels,
+                datasets: [{
+                    label: 'Members by Location',
+                    data: locationData.values,
+                    backgroundColor: ['#3F51B5', '#E91E63', '#00BCD4', '#8BC34A', '#FF9800']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

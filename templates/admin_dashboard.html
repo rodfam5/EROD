@@ -1,53 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-</head>
-<body>
-    <h1>Admin Dashboard</h1>
-    <h2>Users</h2>
-    <ul>
-        {% for user in users %}
-        <li>{{ user.username }} - {{ user.role }}
-            <form method="POST" action="/admin/delete_user/{{ user.id }}" style="display:inline;">
-                <button type="submit">Delete</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-    <h2>Projects</h2>
-    <ul>
-        {% for project in projects %}
-        <li>{{ project.title }} - {{ project.description }}</li>
-        {% endfor %}
-    </ul>
-    <a href="/logout">Logout</a>
-</body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
-                </li>
-            </ul>
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Admin Dashboard</h1>
+    <p class="text-center">Manage all clients, projects, and system settings.</p>
+    
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Total Clients</h3>
+                <p class="fs-4" id="totalClients">{{ total_clients }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Total Projects</h3>
+                <p class="fs-4" id="totalProjects">{{ total_projects }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Pending Tasks</h3>
+                <p class="fs-4" id="pendingTasks">{{ pending_tasks }}</p>
+            </div>
         </div>
     </div>
-</nav>
+    
+    <hr>
+    
+    <h2>Performance Overview</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="projectsChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="tasksChart"></canvas>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <h2>Recent Activity</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in recent_activity %}
+            <tr>
+                <td>{{ activity.user }}</td>
+                <td>{{ activity.action }}</td>
+                <td>{{ activity.date.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" class="text-center">No recent activity found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-</html>
+<!-- Include Chart.js for graphs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var ctxProjects = document.getElementById('projectsChart').getContext('2d');
+        var projectsChart = new Chart(ctxProjects, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed Projects', 'Ongoing Projects', 'Pending Projects'],
+                datasets: [{
+                    data: [{{ completed_projects }}, {{ ongoing_projects }}, {{ pending_projects }}],
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+                }]
+            }
+        });
+        
+        var ctxTasks = document.getElementById('tasksChart').getContext('2d');
+        var tasksChart = new Chart(ctxTasks, {
+            type: 'bar',
+            data: {
+                labels: ['Completed Tasks', 'In Progress Tasks', 'Pending Tasks'],
+                datasets: [{
+                    label: 'Task Status',
+                    data: [{{ completed_tasks }}, {{ in_progress_tasks }}, {{ pending_tasks }}],
+                    backgroundColor: ['#2196F3', '#FFC107', '#F44336']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

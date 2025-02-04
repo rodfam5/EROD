@@ -1,63 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects</title>
-    <style>
-        body {
-            background-color: #007bff;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        form {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            color: black;
-            border-radius: 5px;
-        }
-        input, textarea, button {
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-    </style>
-</head>
-<body>
-    <h1>Create a New Project</h1>
-    <form method="POST">
-        <input type="text" name="title" placeholder="Project Title" required>
-        <textarea name="description" placeholder="Project Description" required></textarea>
-        <button type="submit">Create Project</button>
-    </form>
-</body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
-                </li>
-            </ul>
+{% extends "base.html" %}
+
+{% block title %}Projects - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Projects</h1>
+    <p class="text-center">View and manage all ongoing and completed projects.</p>
+    
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Total Projects</h3>
+                <p class="fs-4" id="totalProjects">{{ total_projects }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Ongoing Projects</h3>
+                <p class="fs-4" id="ongoingProjects">{{ ongoing_projects }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Completed Projects</h3>
+                <p class="fs-4" id="completedProjects">{{ completed_projects }}</p>
+            </div>
         </div>
     </div>
-</nav>
+    
+    <hr>
+    
+    <h2>Project List</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Project Name</th>
+                <th>Client</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.client_name }}</td>
+                <td>{{ project.status }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">No projects available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <h2>Project Statistics</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="projectStatusChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="projectCategoryChart"></canvas>
+        </div>
+    </div>
+</div>
 
-</html>
+<!-- Include Chart.js for interactive charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var projectStatusData = JSON.parse('{{ project_status_data | tojson | safe }}');
+        var projectCategoryData = JSON.parse('{{ project_category_data | tojson | safe }}');
+        
+        var ctxStatus = document.getElementById('projectStatusChart').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'pie',
+            data: {
+                labels: projectStatusData.labels,
+                datasets: [{
+                    data: projectStatusData.values,
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+                }]
+            }
+        });
+        
+        var ctxCategory = document.getElementById('projectCategoryChart').getContext('2d');
+        new Chart(ctxCategory, {
+            type: 'bar',
+            data: {
+                labels: projectCategoryData.labels,
+                datasets: [{
+                    label: 'Projects by Category',
+                    data: projectCategoryData.values,
+                    backgroundColor: ['#3F51B5', '#E91E63', '#00BCD4', '#8BC34A', '#FF9800']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

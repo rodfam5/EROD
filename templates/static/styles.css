@@ -1,65 +1,135 @@
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #e6f0ff;
-    color: #333;
-    margin: 0;
-    padding: 0;
+    background-color: #0a192f;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
 }
 
-header {
-    background-color: #0056b3;
-    color: #fff;
-    padding: 1rem;
+.container {
+    margin-top: 20px;
+}
+
+.card {
+    background-color: #112240;
+    color: #ffffff;
+    border-radius: 10px;
     text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-main {
-    margin: 2rem auto;
-    padding: 1rem;
-    max-width: 800px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Buttons */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
 }
 
-h1, h2 {
-    color: #0056b3;
+.btn-warning {
+    background-color: #ffc107;
+    border: none;
+}
+.btn-warning:hover {
+    background-color: #e0a800;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+.btn-danger:hover {
+    background-color: #c82333;
 }
 
-li {
-    margin: 1rem 0;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+/* Tables */
+.table-dark {
+    background-color: #112240;
+    color: #ffffff;
+}
+.table-dark th {
+    background-color: #1f4068;
 }
 
-a {
-    color: #0056b3;
-    text-decoration: none;
+.table-dark td, .table-dark th {
+    border: 1px solid #3a506b;
+}
+
+/* Forms */
+.form-control {
+    background-color: #112240;
+    color: #ffffff;
+    border: 1px solid #3a506b;
+}
+.form-control::placeholder {
+    color: #8892b0;
+}
+
+/* Dashboard Cards */
+.card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.card p {
+    font-size: 24px;
     font-weight: bold;
 }
 
-button {
-    background-color: #0056b3;
-    color: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
+/* Charts */
+canvas {
+    background-color: #112240;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* Login and Register Pages */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+.auth-card {
+    background-color: #112240;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 400px;
+}
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Search Bar */
+.search-bar {
+    background-color: #112240;
+    color: #ffffff;
+    border: 1px solid #3a506b;
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 100%;
     border-radius: 5px;
 }
 
-button:hover {
-    background-color: #003d80;
+/* Modals */
+.modal-content {
+    background-color: #112240;
+    color: #ffffff;
+    border-radius: 10px;
 }
 
-form input {
-    padding: 0.5rem;
-    margin: 0.5rem 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+.modal-header {
+    border-bottom: 1px solid #3a506b;
+}
+
+.modal-footer {
+    border-top: 1px solid #3a506b;
 }

@@ -1,55 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bids for {{ project.title }}</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <header>
-        <h1>Bidding on Project: {{ project.title }}</h1>
-    </header>
-    <main>
-        <p>{{ project.description }}</p>
-        <h2>Place a Bid</h2>
-        <form method="POST">
-            <label for="amount">Bid Amount:</label>
-            <input type="number" step="0.01" name="amount" id="amount" required>
-            <button type="submit">Submit Bid</button>
-        </form>
-        <h2>Existing Bids</h2>
-        <ul>
-            {% for bid in bids %}
-                <li>Contractor {{ bid.contractor_id }}: ${{ bid.amount }}</li>
-            {% endfor %}
-        </ul>
-        <a href="{{ url_for('index') }}">Back to Home</a>
-    </main>
-</body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
-                </li>
-            </ul>
+{% extends "base.html" %}
+
+{% block title %}Project Bids - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Project Bids</h1>
+    <p class="text-center">View and manage contractor bids for ongoing projects.</p>
+    
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Total Bids</h3>
+                <p class="fs-4" id="totalBids">{{ total_bids }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Pending Bids</h3>
+                <p class="fs-4" id="pendingBids">{{ pending_bids }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Approved Bids</h3>
+                <p class="fs-4" id="approvedBids">{{ approved_bids }}</p>
+            </div>
         </div>
     </div>
-</nav>
+    
+    <hr>
+    
+    <h2>Bid Submissions</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Project</th>
+                <th>Contractor</th>
+                <th>Bid Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bid in project_bids %}
+            <tr>
+                <td>{{ bid.project_name }}</td>
+                <td>{{ bid.contractor_name }}</td>
+                <td>${{ bid.amount }}</td>
+                <td>{{ bid.status }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-success btn-sm">Approve</a>
+                    <a href="#" class="btn btn-danger btn-sm">Reject</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No bids available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <h2>Bidding Statistics</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="bidStatusChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="bidAmountChart"></canvas>
+        </div>
+    </div>
+</div>
 
-</html>
+<!-- Include Chart.js for interactive charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var bidStatusData = JSON.parse('{{ bid_status_data | tojson | safe }}');
+        var bidAmountData = JSON.parse('{{ bid_amount_data | tojson | safe }}');
+        
+        var ctxStatus = document.getElementById('bidStatusChart').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'pie',
+            data: {
+                labels: bidStatusData.labels,
+                datasets: [{
+                    data: bidStatusData.values,
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+                }]
+            }
+        });
+        
+        var ctxAmount = document.getElementById('bidAmountChart').getContext('2d');
+        new Chart(ctxAmount, {
+            type: 'bar',
+            data: {
+                labels: bidAmountData.labels,
+                datasets: [{
+                    label: 'Bid Amount Distribution',
+                    data: bidAmountData.values,
+                    backgroundColor: ['#3F51B5', '#E91E63', '#00BCD4', '#8BC34A', '#FF9800']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

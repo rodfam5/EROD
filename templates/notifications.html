@@ -1,47 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <header>
-        <h1>Your Notifications</h1>
-    </header>
-    <main>
-        <ul>
-            {% for notification in notifications %}
-                <li>{{ notification.message }} ({{ notification.created_at.strftime('%Y-%m-%d %H:%M') }})</li>
-            {% endfor %}
-        </ul>
-        <a href="{{ url_for('index') }}">Back to Home</a>
-    </main>
-</body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_clients') }}">Clients</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_tasks') }}">Tasks</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notifications') }}">Notifications</a>
-                </li>
-            </ul>
+{% extends "base.html" %}
+
+{% block title %}Notifications - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Notifications</h1>
+    <p class="text-center">View and manage system notifications.</p>
+    
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Unread Notifications</h3>
+                <p class="fs-4" id="unreadNotifications">{{ unread_notifications }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h3>Total Notifications</h3>
+                <p class="fs-4" id="totalNotifications">{{ total_notifications }}</p>
+            </div>
         </div>
     </div>
-</nav>
+    
+    <hr>
+    
+    <h2>Recent Notifications</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for notification in notifications %}
+            <tr>
+                <td>{{ notification.message }}</td>
+                <td>{{ "Unread" if not notification.is_read else "Read" }}</td>
+                <td>{{ notification.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
+                    <a href="#" class="btn btn-warning btn-sm">Mark as Read</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">No notifications available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <h2>Notifications Overview</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="notificationTypeChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="notificationStatusChart"></canvas>
+        </div>
+    </div>
+</div>
 
-</html>
+<!-- Include Chart.js for interactive charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var notificationTypeData = JSON.parse('{{ notification_type_data | tojson | safe }}');
+        var notificationStatusData = JSON.parse('{{ notification_status_data | tojson | safe }}');
+        
+        var ctxType = document.getElementById('notificationTypeChart').getContext('2d');
+        new Chart(ctxType, {
+            type: 'pie',
+            data: {
+                labels: notificationTypeData.labels,
+                datasets: [{
+                    data: notificationTypeData.values,
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#2196F3', '#9C27B0']
+                }]
+            }
+        });
+        
+        var ctxStatus = document.getElementById('notificationStatusChart').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'bar',
+            data: {
+                labels: notificationStatusData.labels,
+                datasets: [{
+                    label: 'Notification Status',
+                    data: notificationStatusData.values,
+                    backgroundColor: ['#3F51B5', '#E91E63', '#00BCD4', '#8BC34A', '#FF9800']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}
