@@ -102,6 +102,14 @@ def tasks():
 def contract_management():
     return render_template('contract_management.html')
 
+@app.route('/finances')
+def finances():
+    return render_template('finances.html')
+
+@app.route('/team_management')
+def team_management():
+    return render_template('team_management.html')
+
 @app.route('/alliances', methods=['GET', 'POST'])
 def alliances():
     if request.method == 'POST':
