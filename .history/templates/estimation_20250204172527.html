@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Estimation - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Project Estimation</h1>
+    <p class="text-center">Estimate job costs, materials, labor, and calculate floor plans for accurate project budgeting.</p>
+    
+    <!-- Project Selection -->
+    <h2>Select Project</h2>
+    <select class="form-control" id="projectSelect">
+        <option value="">-- Select Project --</option>
+        {% for project in projects %}
+            <option value="{{ project.id }}">{{ project.name }}</option>
+        {% endfor %}
+    </select>
+    
+    <hr>
+    
+    <!-- Floor Plan & Square Footage Calculation -->
+    <h2>Floor Plan & Square Footage</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="length">Length (ft)</label>
+            <input type="number" class="form-control" id="length" placeholder="Enter length" onchange="calculateArea()">
+        </div>
+        <div class="col-md-6">
+            <label for="width">Width (ft)</label>
+            <input type="number" class="form-control" id="width" placeholder="Enter width" onchange="calculateArea()">
+        </div>
+    </div>
+    <p class="mt-2"><strong>Total Square Footage:</strong> <span id="totalArea">0</span> sq ft</p>
+    
+    <hr>
+    
+    <!-- Automated Material Calculation -->
+    <h2>Material & Labor Costs (Auto-Calculated)</h2>
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Unit Cost</th>
+                <th>Total Cost</th>
+            </tr>
+        </thead>
+        <tbody id="estimationTable">
+            <tr>
+                <td>Concrete (cu yd)</td>
+                <td id="concreteQty">0</td>
+                <td>$150</td>
+                <td id="concreteTotal">$0.00</td>
+            </tr>
+            <tr>
+                <td>Wood (sq ft)</td>
+                <td id="woodQty">0</td>
+                <td>$5</td>
+                <td id="woodTotal">$0.00</td>
+            </tr>
+            <tr>
+                <td>Labor</td>
+                <td id="laborHours">0</td>
+                <td>$50</td>
+                <td id="laborTotal">$0.00</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <!-- Summary Section -->
+    <h2>Estimation Summary</h2>
+    <p><strong>Total Material Cost:</strong> $<span id="totalMaterial">0.00</span></p>
+    <p><strong>Total Labor Cost:</strong> $<span id="totalLabor">0.00</span></p>
+    <p><strong>Grand Total:</strong> $<span id="grandTotal">0.00</span></p>
+    <button class="btn btn-success">Save Estimate</button>
+    
+</div>
+
+<script>
+    function calculateArea() {
+        let length = parseFloat(document.getElementById("length").value) || 0;
+        let width = parseFloat(document.getElementById("width").value) || 0;
+        let area = length * width;
+        document.getElementById("totalArea").innerText = area.toFixed(2);
+        calculateMaterials(area);
+    }
+    
+    function calculateMaterials(area) {
+        let concreteQty = (area / 27).toFixed(2); // Convert sq ft to cubic yards
+        let woodQty = (area * 3).toFixed(2); // Assume 3 sq ft of wood per sq ft area
+        let laborHours = (area * 0.2).toFixed(2); // Assume 0.2 labor hours per sq ft
+        
+        document.getElementById("concreteQty").innerText = concreteQty;
+        document.getElementById("woodQty").innerText = woodQty;
+        document.getElementById("laborHours").innerText = laborHours;
+        
+        document.getElementById("concreteTotal").innerText = `$${(concreteQty * 150).toFixed(2)}`;
+        document.getElementById("woodTotal").innerText = `$${(woodQty * 5).toFixed(2)}`;
+        document.getElementById("laborTotal").innerText = `$${(laborHours * 50).toFixed(2)}`;
+        
+        calculateTotal();
+    }
+    
+    function calculateTotal() {
+        let totalMaterial = parseFloat(document.getElementById("concreteTotal").innerText.replace('$', '')) + 
+                            parseFloat(document.getElementById("woodTotal").innerText.replace('$', ''));
+        let totalLabor = parseFloat(document.getElementById("laborTotal").innerText.replace('$', ''));
+        
+        document.getElementById("totalMaterial").innerText = totalMaterial.toFixed(2);
+        document.getElementById("totalLabor").innerText = totalLabor.toFixed(2);
+        document.getElementById("grandTotal").innerText = (totalMaterial + totalLabor).toFixed(2);
+    }
+</script>
+{% endblock %}

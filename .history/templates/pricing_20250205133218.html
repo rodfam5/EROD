@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing Plans - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Choose Your Plan</h1>
+    <p class="text-center">Flexible pricing for both <strong>Clients</strong> and <strong>Alliance Members</strong></p>
+
+    <!-- Monthly vs. Yearly Toggle -->
+    <div class="text-center">
+        <label class="switch">
+            <input type="checkbox" id="pricingToggle" onchange="togglePricing()">
+            <span class="slider round"></span>
+        </label>
+        <span><strong>Switch to Yearly (Save 15%)</strong></span>
+    </div>
+
+    <!-- AI-Powered Estimator -->
+    <h2 class="mt-4">AI-Powered Price Estimator</h2>
+    <p>Enter your project details, and we'll recommend the best plan.</p>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="projectSize">Project Size (sq ft):</label>
+            <input type="number" id="projectSize" class="form-control" placeholder="Enter square footage" onchange="calculateCustomPricing()">
+        </div>
+        <div class="col-md-6">
+            <label for="userCount">Number of Users:</label>
+            <input type="number" id="userCount" class="form-control" placeholder="Enter team size" onchange="calculateCustomPricing()">
+        </div>
+    </div>
+    <p class="mt-3"><strong>Estimated Price:</strong> $<span id="estimatedPrice">0.00</span>/mo</p>
+
+    <hr>
+
+    <!-- Pricing Table -->
+    <h2>Standard Plans</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Plan</th>
+                <th>Clients <span id="clientPricingLabel">(Monthly)</span></th>
+                <th>Alliance Members <span id="alliancePricingLabel">(Monthly)</span></th>
+                <th>Features</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Basic</td>
+                <td id="basicClient">$62.50/mo</td> 
+                <td id="basicAlliance">$125/mo</td>
+                <td>Project Tracking, Basic Reports</td>
+            </tr>
+            <tr>
+                <td>Pro</td>
+                <td id="proClient">$187.50/mo</td>
+                <td id="proAlliance">$312.50/mo</td>
+                <td>Advanced Analytics, AI Estimation, API Integration</td>
+            </tr>
+            <tr>
+                <td>Enterprise</td>
+                <td id="enterpriseClient">$375/mo</td>
+                <td id="enterpriseAlliance">$625/mo</td>
+                <td>Dedicated Support, Custom Workflows, White Labeling</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <!-- Competitor Pricing Comparison -->
+    <h2>Why Choose Us?</h2>
+    <table class="table table-dark table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Our CRM</th>
+                <th>Procore</th>
+                <th>Buildertrend</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Project Management</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td>AI Cost Estimation</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>❌</td>
+            </tr>
+            <tr>
+                <td>Material Auto-Suggestions</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td>Pricing (Pro Plan)</td>
+                <td>$187.50/mo</td>
+                <td>$399/mo</td>
+                <td>$299/mo</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <!-- Limited-Time Discount -->
+    <h2>Limited-Time Offer 🎉</h2>
+    <p>Get 20% off for the first 3 months. Use Code: <strong>SAVE20</strong></p>
+    <p>Offer expires in: <span id="countdown">48:00:00</span></p>
+
+    <hr>
+
+    <!-- Testimonials -->
+    <h2>What Our Clients Say</h2>
+    <div class="testimonial">
+        <p>“This CRM helped us cut costs by 20%! The AI estimator is a game-changer.”</p>
+        <p><strong>- John Doe, Construction Manager</strong></p>
+    </div>
+
+    <hr>
+
+    <!-- Custom Quote -->
+    <h2>Need a Custom Plan?</h2>
+    <p>Tell us your business needs, and we’ll provide a tailored quote.</p>
+    <a href="{{ url_for('custom_quote') }}" class="btn btn-dark">Request Custom Quote</a>
+
+</div>
+
+<script>
+    function togglePricing() {
+        let isYearly = document.getElementById("pricingToggle").checked;
+        let multiplier = isYearly ? 0.85 : 1;
+
+        let prices = {
+            "basicClient": 62.50,
+            "basicAlliance": 125,
+            "proClient": 187.50,
+            "proAlliance": 312.50,
+            "enterpriseClient": 375,
+            "enterpriseAlliance": 625
+        };
+
+        for (let key in prices) {
+            document.getElementById(key).innerText = `$${(prices[key] * multiplier).toFixed(2)}/${isYearly ? "yr" : "mo"}`;
+        }
+
+        document.getElementById("clientPricingLabel").innerText = isYearly ? "(Yearly)" : "(Monthly)";
+        document.getElementById("alliancePricingLabel").innerText = isYearly ? "(Yearly)" : "(Monthly)";
+    }
+
+    function startCountdown(duration) {
+        let timer = duration, hours, minutes, seconds;
+        setInterval(function () {
+            hours = parseInt(timer / 3600, 10);
+            minutes = parseInt((timer % 3600) / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            document.getElementById("countdown").innerText = hours + ":" + minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                timer = duration;
+            }
+        }, 1000);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        startCountdown(172800);  // 48 hours countdown
+    });
+</script>
+
+{% endblock %}

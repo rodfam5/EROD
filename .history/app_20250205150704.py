@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import stripe
 import json
 import pdfkit
+pdfkit_config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+
 from flask_babel import Babel
 from apscheduler.schedulers.background import BackgroundScheduler
 import openai
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///construction_crm.db'
@@ -16,21 +18,7 @@ app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_SUPPORTED_LOCALES'] = ['en', 'fr', 'es']
 babel = Babel(app)
 db = SQLAlchemy(app)
-
-# --- Flask-Login Setup ---
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-# --- User Model for Flask-Login ---
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(100), nullable=False)
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+migrate = Migrate(app, db)
 
 stripe.api_key = "your_stripe_secret_key_here"
 openai.api_key = "your_openai_api_key_here"
@@ -86,18 +74,9 @@ def index():
 def clients():
     return render_template('clients.html')
 
-@app.route('/notifications')
-def notifications():
-    return render_template('notifications.html')
-
 @app.route('/projects')
 def projects():
     return render_template('projects.html')
-
-@app.route('/finances')
-def finances():
-    invoices = Invoice.query.all()
-    return render_template('finances.html', invoices=invoices)
 
 @app.route('/estimations', methods=['GET', 'POST'])
 def estimations():
@@ -115,33 +94,41 @@ def estimations():
 
     return render_template('estimation.html', estimated_cost=estimated_cost, estimated_materials=suggested_materials)
 
-@app.route('/tasks')
-def tasks():
-    return render_template('tasks.html')
+@app.route('/calculate_materials')
+def calculate_materials():
+    area = float(request.args.get("area", 0))
+    total_material_cost = sum([cost_data["base_price"] * (area / 100) for cost_data in MATERIAL_COSTS.values()])
+    total_labor_cost = sum([rate * (area / 1000) for rate in LABOR_COSTS.values()])
+    return jsonify({
+        "total_material_cost": total_material_cost,
+        "total_labor_cost": total_labor_cost,
+        "grand_total": total_material_cost + total_labor_cost
+    })
 
-@app.route('/sales')
-def sales_client_management():
-    return render_template('sales_client_management.html')
+@app.route('/export_estimation_pdf')
+def export_estimation_pdf():
+    html = render_template("estimation.html")
+    pdf = pdfkit.from_string(html, False)
+    return send_file(pdf, mimetype="application/pdf", as_attachment=True, download_name="estimation_report.pdf")
 
-@app.route('/contract_management')
-def contract_management():
-    return render_template('contract_management.html')
+@app.route('/generate_quote')
+def generate_quote():
+    html = render_template("estimation.html")
+    pdf = pdfkit.from_string(html, False)
+    return send_file(pdf, mimetype="application/pdf", as_attachment=True, download_name="project_quote.pdf")
 
-@app.route('/team_management')
-def team_management():
-    return render_template('team_management.html')
+@app.route('/send_estimate_for_approval')
+def send_estimate_for_approval():
+    return jsonify({"message": "Estimate sent for approval!"})
 
-@app.route('/alliances')
-def alliances():
-    return render_template('alliances.html')
+@app.route('/enable_collaboration')
+def enable_collaboration():
+    return jsonify({"message": "Real-time collaboration enabled."})
 
-@app.route('/grants')
-def grants():
-    return render_template('grants.html')
-
-@app.route('/pricing')
-def pricing():
-    return render_template('pricing.html')
+@app.route('/finances')
+def finances():
+    invoices = Invoice.query.all()
+    return render_template('finances.html', invoices=invoices)
 
 @app.route('/pay_invoice/<int:invoice_id>')
 def pay_invoice(invoice_id):

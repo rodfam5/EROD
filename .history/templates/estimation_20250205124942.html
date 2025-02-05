@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Estimation - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Project Estimation</h1>
+    <p class="text-center">Estimate job costs, materials, labor, and calculate floor plans for accurate project budgeting.</p>
+    
+    <!-- Project Selection -->
+    <h2>Select Project</h2>
+    <select class="form-control" id="projectSelect">
+        <option value="">-- Select Project --</option>
+        {% for project in projects %}
+            <option value="{{ project.id }}">{{ project.name }}</option>
+        {% endfor %}
+    </select>
+    
+    <hr>
+    
+    <!-- Floor Plan & Square Footage Calculation -->
+    <h2>Floor Plan & Square Footage</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="length">Length (ft)</label>
+            <input type="number" class="form-control" id="length" placeholder="Enter length" onchange="calculateArea()">
+        </div>
+        <div class="col-md-6">
+            <label for="width">Width (ft)</label>
+            <input type="number" class="form-control" id="width" placeholder="Enter width" onchange="calculateArea()">
+        </div>
+    </div>
+    <p class="mt-2"><strong>Total Square Footage:</strong> <span id="totalArea">0</span> sq ft</p>
+    
+    <hr>
+    
+    <!-- Automated Material Calculation -->
+    <h2>Material & Labor Costs (Auto-Calculated)</h2>
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Unit Cost</th>
+                <th>Total Cost</th>
+            </tr>
+        </thead>
+        <tbody id="estimationTable">
+            {% for item in estimated_materials %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.unit_cost }}</td>
+                <td>${{ item.total_cost }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <!-- Summary Section -->
+    <h2>Estimation Summary</h2>
+    <p><strong>Total Material Cost:</strong> $<span id="totalMaterial">{{ total_material_cost }}</span></p>
+    <p><strong>Total Labor Cost:</strong> $<span id="totalLabor">{{ total_labor_cost }}</span></p>
+    <p><strong>Grand Total:</strong> $<span id="grandTotal">{{ grand_total }}</span></p>
+    <button class="btn btn-success" onclick="exportToPDF()">Export to PDF</button>
+    <button class="btn btn-info" onclick="generateQuote()">Generate Quote</button>
+    
+    <hr>
+    
+    <!-- Third-Party Pricing Integration -->
+    <h2>Live Material Pricing</h2>
+    <button class="btn btn-primary" onclick="fetchHomeDepotPrices()">Fetch Home Depot Prices</button>
+    <div id="pricingResults"></div>
+    
+    <hr>
+    
+    <!-- Client Approval Workflow with Notifications -->
+    <h2>Client Approval</h2>
+    <p>Send estimates to clients for review and approval.</p>
+    <button class="btn btn-warning" onclick="sendForApproval()">Send for Client Approval</button>
+    <p id="approvalStatus"></p>
+    <div id="realTimeNotifications"></div>
+    
+    <hr>
+    
+    <!-- Multi-User Collaboration -->
+    <h2>Real-Time Collaboration</h2>
+    <p>Multiple users can view and edit this estimate simultaneously.</p>
+    <button class="btn btn-secondary" onclick="enableCollaboration()">Enable Collaboration</button>
+    <div id="collaborationStatus"></div>
+    
+</div>
+
+<script>
+    function calculateArea() {
+        let length = parseFloat(document.getElementById("length").value) || 0;
+        let width = parseFloat(document.getElementById("width").value) || 0;
+        let area = length * width;
+        document.getElementById("totalArea").innerText = area.toFixed(2);
+        fetch(`/calculate_materials?area=${area}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("totalMaterial").innerText = data.total_material_cost.toFixed(2);
+                document.getElementById("totalLabor").innerText = data.total_labor_cost.toFixed(2);
+                document.getElementById("grandTotal").innerText = data.grand_total.toFixed(2);
+            });
+    }
+
+    function exportToPDF() {
+        fetch('/export_estimation_pdf')
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'estimation_report.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+    }
+
+    function fetchHomeDepotPrices() {
+        fetch('/fetch_home_depot_prices')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("pricingResults").innerHTML = JSON.stringify(data, null, 2);
+            });
+    }
+
+    function generateQuote() {
+        fetch('/generate_quote')
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'project_quote.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+    }
+
+    function sendForApproval() {
+        fetch('/send_estimate_for_approval')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("approvalStatus").innerText = data.message;
+                showRealTimeNotification("Estimate sent for approval.");
+            });
+    }
+
+    function enableCollaboration() {
+        fetch('/enable_collaboration')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("collaborationStatus").innerText = data.message;
+                showRealTimeNotification("Real-time collaboration enabled.");
+            });
+    }
+
+    function showRealTimeNotification(message) {
+        let notificationDiv = document.getElementById("realTimeNotifications");
+        let newNotification = document.createElement("div");
+        newNotification.className = "alert alert-info";
+        newNotification.innerText = message;
+        notificationDiv.appendChild(newNotification);
+        setTimeout(() => { newNotification.remove(); }, 5000);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Estimation - CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Project Estimation</h1>
+    <p class="text-center">Estimate job costs, materials, labor, and calculate floor plans for accurate project budgeting.</p>
+    
+    <!-- Project Selection -->
+    <h2>Select Project</h2>
+    <select class="form-control" id="projectSelect">
+        <option value="">-- Select Project --</option>
+        {% for project in projects %}
+            <option value="{{ project.id }}">{{ project.name }}</option>
+        {% endfor %}
+    </select>
+    
+    <hr>
+    
+    <!-- Floor Plan & Square Footage Calculation -->
+    <h2>Floor Plan & Square Footage</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="length">Length (ft)</label>
+            <input type="number" class="form-control" id="length" placeholder="Enter length" onchange="calculateArea()">
+        </div>
+        <div class="col-md-6">
+            <label for="width">Width (ft)</label>
+            <input type="number" class="form-control" id="width" placeholder="Enter width" onchange="calculateArea()">
+        </div>
+    </div>
+    <p class="mt-2"><strong>Total Square Footage:</strong> <span id="totalArea">0</span> sq ft</p>
+    
+    <hr>
+    
+    <!-- Automated Material Calculation -->
+    <h2>Material & Labor Costs (Auto-Calculated)</h2>
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>

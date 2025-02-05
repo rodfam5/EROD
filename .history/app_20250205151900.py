@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import stripe
 import json
 import pdfkit
+pdfkit_config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+
 from flask_babel import Babel
 from apscheduler.schedulers.background import BackgroundScheduler
 import openai
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///construction_crm.db'
@@ -16,21 +18,7 @@ app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_SUPPORTED_LOCALES'] = ['en', 'fr', 'es']
 babel = Babel(app)
 db = SQLAlchemy(app)
-
-# --- Flask-Login Setup ---
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-# --- User Model for Flask-Login ---
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(100), nullable=False)
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+migrate = Migrate(app, db)
 
 stripe.api_key = "your_stripe_secret_key_here"
 openai.api_key = "your_openai_api_key_here"
@@ -85,10 +73,6 @@ def index():
 @app.route('/clients')
 def clients():
     return render_template('clients.html')
-
-@app.route('/notifications')
-def notifications():
-    return render_template('notifications.html')
 
 @app.route('/projects')
 def projects():
