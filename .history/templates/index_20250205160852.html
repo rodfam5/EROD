@@ -11,19 +11,19 @@
         <div class="col-md-4">
             <div class="card p-3">
                 <h3>Total Clients</h3>
-                <p class="fs-4">{{ total_clients if total_clients is not none else 0 }}</p>
+                <p class="fs-4">{{ total_clients }}</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card p-3">
                 <h3>Total Projects</h3>
-                <p class="fs-4">{{ total_projects if total_projects is not none else 0 }}</p>
+                <p class="fs-4">{{ total_projects }}</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card p-3">
                 <h3>Total Alliance Members</h3>
-                <p class="fs-4">{{ total_alliance_members if total_alliance_members is not none else 0 }}</p>
+                <p class="fs-4">{{ total_alliance_members }}</p>
             </div>
         </div>
     </div>
@@ -56,27 +56,27 @@
 <!-- Include Chart.js for interactive charts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        function parseJSON(data, fallback) {
+    document.addEventListener("DOMContentLoaded", function() {
+        function parseJSON(data) {
             try {
                 return JSON.parse(data);
             } catch (error) {
                 console.error("JSON Parsing Error:", error);
-                return fallback;
+                return [];
             }
         }
 
-        var projectsData = parseJSON(`{{ projects_data | tojson | safe }}`, { labels: [], values: [] });
-        var tasksData = parseJSON(`{{ tasks_data | tojson | safe }}`, { labels: [], values: [] });
-        var specialtyData = parseJSON(`{{ specialty_data | tojson | safe }}`, { labels: [], values: [] });
-        var locationData = parseJSON(`{{ location_data | tojson | safe }}`, { labels: [], values: [] });
+        var projectsData = parseJSON('{{ projects_data | tojson | safe }}' || '[]');
+        var tasksData = parseJSON('{{ tasks_data | tojson | safe }}' || '[]');
+        var specialtyData = parseJSON('{{ specialty_data | tojson | safe }}' || '[]');
+        var locationData = parseJSON('{{ location_data | tojson | safe }}' || '[]');
 
         console.log("Projects Data:", projectsData);
         console.log("Tasks Data:", tasksData);
         console.log("Specialty Data:", specialtyData);
         console.log("Location Data:", locationData);
 
-        if (projectsData.labels.length) {
+        if (projectsData.labels) {
             var ctxProjects = document.getElementById('projectsChart').getContext('2d');
             new Chart(ctxProjects, {
                 type: 'doughnut',
@@ -90,7 +90,7 @@
             });
         }
 
-        if (tasksData.labels.length) {
+        if (tasksData.labels) {
             var ctxTasks = document.getElementById('tasksChart').getContext('2d');
             new Chart(ctxTasks, {
                 type: 'bar',
@@ -105,7 +105,7 @@
             });
         }
 
-        if (specialtyData.labels.length) {
+        if (specialtyData.labels) {
             var ctxSpecialty = document.getElementById('specialtyChart').getContext('2d');
             new Chart(ctxSpecialty, {
                 type: 'pie',
@@ -119,7 +119,7 @@
             });
         }
 
-        if (locationData.labels.length) {
+        if (locationData.labels) {
             var ctxLocation = document.getElementById('locationChart').getContext('2d');
             new Chart(ctxLocation, {
                 type: 'bar',

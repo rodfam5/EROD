@@ -22,7 +22,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# --- User Model ---
+# --- User Model for Flask-Login ---
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
@@ -32,7 +32,6 @@ class User(db.Model, UserMixin):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- Stripe & OpenAI Setup ---
 stripe.api_key = "your_stripe_secret_key_here"
 openai.api_key = "your_openai_api_key_here"
 scheduler = BackgroundScheduler()
@@ -81,27 +80,7 @@ LABOR_COSTS = {
 # --- Routes ---
 @app.route('/')
 def index():
-    projects = Project.query.all()
-    
-    projects_data = {
-        "labels": [project.name for project in projects],
-        "values": [project.size_sqft for project in projects]
-    }
-
-    tasks_data = {"labels": [], "values": []}  # Placeholder for tasks
-    specialty_data = {"labels": [], "values": []}  # Placeholder for specialty
-    location_data = {"labels": [], "values": []}  # Placeholder for locations
-
-    return render_template(
-        'index.html',
-        total_clients=Client.query.count(),
-        total_projects=len(projects),
-        total_alliance_members=0,  # Update with alliance members
-        projects_data=json.dumps(projects_data),
-        tasks_data=json.dumps(tasks_data),
-        specialty_data=json.dumps(specialty_data),
-        location_data=json.dumps(location_data)
-    )
+    return render_template('index.html')
 
 @app.route('/clients')
 def clients():
@@ -160,6 +139,10 @@ def team_management():
 def alliances():
     return render_template('alliances.html')
 
+@app.route('/grants')
+def grants():
+    return render_template('grants.html')
+
 @app.route('/pricing')
 def pricing():
     return render_template('pricing.html')
@@ -198,21 +181,24 @@ def payment_success(invoice_id):
         db.session.commit()
     return redirect(url_for('finances'))
 
-# --- AI & Chatbot Features ---
+# --- AI-Based Cost Prediction & Risk Assessment ---
 @app.route('/predict_cost', methods=['POST'])
 def predict_cost():
     data = request.json
     project_size = float(data['project_size'])
-    predicted_cost = project_size * 120
+    predicted_cost = project_size * 120  # Example AI-driven formula
     return jsonify({"predicted_cost": predicted_cost})
 
+# --- Automatic Tax & Compliance Calculations ---
 @app.route('/calculate_tax', methods=['POST'])
 def calculate_tax():
     data = request.json
     project_cost = float(data['project_cost'])
-    tax_amount = project_cost * 0.15
+    tax_rate = 0.15  # Example tax calculation
+    tax_amount = project_cost * tax_rate
     return jsonify({"tax_amount": tax_amount})
 
+# --- AI-Powered Chatbot for Assistance ---
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
     user_message = request.json.get("message")
@@ -229,6 +215,16 @@ def set_language(lang):
     if lang in app.config['BABEL_SUPPORTED_LOCALES']:
         request.accept_languages = lang
     return redirect(url_for('index'))
+
+# --- Automated Scheduling & Gantt Chart Data API ---
+@app.route('/schedule_project', methods=['POST'])
+def schedule_project():
+    data = request.json
+    project_name = data['project_name']
+    start_date = data['start_date']
+    end_date = data['end_date']
+    scheduler.add_job(func=lambda: print(f"Scheduled project {project_name}"), trigger='date', run_date=start_date)
+    return jsonify({"message": f"Project {project_name} scheduled from {start_date} to {end_date}"})
 
 if __name__ == '__main__':
     with app.app_context():

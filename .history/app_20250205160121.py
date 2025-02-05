@@ -81,27 +81,7 @@ LABOR_COSTS = {
 # --- Routes ---
 @app.route('/')
 def index():
-    projects = Project.query.all()
-    
-    projects_data = {
-        "labels": [project.name for project in projects],
-        "values": [project.size_sqft for project in projects]
-    }
-
-    tasks_data = {"labels": [], "values": []}  # Placeholder for tasks
-    specialty_data = {"labels": [], "values": []}  # Placeholder for specialty
-    location_data = {"labels": [], "values": []}  # Placeholder for locations
-
-    return render_template(
-        'index.html',
-        total_clients=Client.query.count(),
-        total_projects=len(projects),
-        total_alliance_members=0,  # Update with alliance members
-        projects_data=json.dumps(projects_data),
-        tasks_data=json.dumps(tasks_data),
-        specialty_data=json.dumps(specialty_data),
-        location_data=json.dumps(location_data)
-    )
+    return render_template('index.html')
 
 @app.route('/clients')
 def clients():
