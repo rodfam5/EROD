@@ -175,7 +175,7 @@ def pay_invoice(invoice_id):
                     'price_data': {
                         'currency': 'usd',
                         'product_data': {'name': f"Invoice #{invoice.id}"},
-                        'unit_amount': int(invoice.amount * 100),
+                        'unit_amount': int(invoice.amount * 100),  # Stripe expects amount in cents
                     },
                     'quantity': 1,
                 }],
@@ -188,7 +188,9 @@ def pay_invoice(invoice_id):
             return redirect(checkout_session.url)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+
     return redirect(url_for('finances'))
+
 
 @app.route('/payment_success/<int:invoice_id>')
 def payment_success(invoice_id):
